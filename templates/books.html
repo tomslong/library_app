@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head><title>Library Books</title></head>
+<body>
+    <h1>Available Books</h1>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <ul>
+        {% for book in books %}
+            <li>{{ book.title }} by {{ book.author }}
+                {% if book.available %}
+                    <form method="POST" style="display:inline;">
+                        <input type="hidden" name="book_id" value="{{ book.id }}">
+                        <input type="submit" value="Borrow">
+                    </form>
+                {% else %}
+                    (Borrowed{% if book.id in borrowed_ids %} by you{% endif %})
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+</html>
