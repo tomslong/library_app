@@ -1,31 +1,48 @@
-<!DOCTYPE html>
-<html>
-<head><title>Library Books</title></head>
-<body>
-    <h1>Available Books</h1>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-    <ul>
+{% extends 'base.html' %}
+{% block title %}Library Books{% endblock %}
+{% block content %}
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h1 class="h3 m-0">Available Books</h1>
+        <form class="d-flex" method="GET" action="{{ url_for('books') }}">
+            <input class="form-control me-2" type="search" name="q" placeholder="Search by title or author" value="{{ request.args.get('q','') }}">
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+        </form>
+    </div>
+
+    {% if books|length == 0 %}
+        <div class="alert alert-secondary">No books found.</div>
+    {% endif %}
+
+    <ul class="list-group">
         {% for book in books %}
-            <li>{{ book.title }} by {{ book.author }}
-                {% if book.available %}
-                    <form method="POST" style="display:inline;">
-                        <input type="hidden" name="book_id" value="{{ book.id }}">
-                        <input type="submit" value="Borrow">
-                    </form>
-                {% else %}
-                    (Borrowed{% if book.id in borrowed_ids %} by you{% endif %})
-                {% endif %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="fw-semibold">{{ book.title }}</div>
+                    <small class="text-muted">by {{ book.author }}</small>
+                </div>
+                <div>
+                    {% if book.available %}
+                        <form method="POST" class="d-inline">
+                            <input type="hidden" name="book_id" value="{{ book.id }}">
+                            <input type="hidden" name="action" value="borrow">
+                            <button class="btn btn-sm btn-primary" type="submit">Borrow</button>
+                        </form>
+                    {% else %}
+                        <span class="badge bg-secondary me-2">Borrowed{% if book.id in borrowed_ids %} by you{% endif %}</span>
+                        {% if book.id in borrowed_ids %}
+                            <form method="POST" class="d-inline">
+                                <input type="hidden" name="book_id" value="{{ book.id }}">
+                                <input type="hidden" name="action" value="return">
+                                <button class="btn btn-sm btn-outline-success" type="submit">Return</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
             </li>
         {% endfor %}
     </ul>
-    <a href="{{ url_for('logout') }}">Logout</a>
-</body>
-</html>
+
+    <div class="mt-3">
+        <a class="btn btn-link" href="{{ url_for('logout') }}">Logout</a>
+    </div>
+{% endblock %}

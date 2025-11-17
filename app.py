@@ -67,22 +67,46 @@ def books():
        return redirect(url_for('login'))
        
     user = User.query.get(session['user_id'])
-    all_books = Book.query.all()
-    
+
+    # Handle POST actions: borrow or return
     if request.method == 'POST':
         book_id = int(request.form['book_id'])
+        action = request.form.get('action', 'borrow')
         book = Book.query.get(book_id)
-        if book and book.available:
-            book.available = False
-            if user.borrowed_books:
-                user.borrowed_books += f",{book_id}"
+        if not book:
+            flash('Book is not available!')  # keep message consistent
+        elif action == 'return':
+            # Only allow return if user has borrowed this book
+            borrowed_ids = [int(bid) for bid in user.borrowed_books.split(',') if bid]
+            if book_id in borrowed_ids:
+                # mark available and remove from user's list
+                book.available = True
+                borrowed_ids.remove(book_id)
+                user.borrowed_books = ','.join(str(b) for b in borrowed_ids)
+                db.session.commit()
+                flash(f'Returned {book.title}')
             else:
-                user.borrowed_books = str(book_id)
-            db.session.commit()
-            flash(f'You borrowed {book.title}')
+                flash('Book is not available!')
         else:
-            flash('Book is not available!')
-        
+            if book and book.available:
+                book.available = False
+                if user.borrowed_books:
+                    user.borrowed_books += f",{book_id}"
+                else:
+                    user.borrowed_books = str(book_id)
+                db.session.commit()
+                flash(f'You borrowed {book.title}')
+            else:
+                flash('Book is not available!')
+
+    # Search/filter on GET (and after POST redirectless render)
+    q = request.args.get('q', '').strip()
+    query = Book.query
+    if q:
+        like = f"%{q}%"
+        query = query.filter((Book.title.ilike(like)) | (Book.author.ilike(like)))
+    all_books = query.all()
+
     borrowed_ids = [int(bid) for bid in user.borrowed_books.split(',') if bid]
     return render_template('books.html', books=all_books, borrowed_ids=borrowed_ids)
     
