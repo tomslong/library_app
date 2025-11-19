@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - SECRET_KEY=your_production_secret_key  # 生产环境密钥
+      - SQLALCHEMY_DATABASE_URI=mysql+pymysql://root:mysql_password@db:3306/library  # 连接MySQL
+      - SQLALCHEMY_TRACK_MODIFICATIONS=False
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: mysql:8.0
+    volumes:
+      - mysql_data:/var/lib/mysql  # 数据持久化到本地卷
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysql_password  # MySQL root密码
+      - MYSQL_DATABASE=library  # 自动创建数据库
+    ports:
+      - "3306:3306"
+    restart: always
+
+volumes:
+  mysql_data:  # 持久化卷，确保数据不丢失

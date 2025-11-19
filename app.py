@@ -1,9 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from models import db, User, Book
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///library.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    'SQLALCHEMY_DATABASE_URL',
+    'sqlite:///library.db'  #本地开发默认 
+)
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
