@@ -5,7 +5,7 @@ import os
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
-    'SQLALCHEMY_DATABASE_URL',
+    'SQLALCHEMY_DATABASE_URI',
     'sqlite:///library.db'  #本地开发默认 
 )
 
