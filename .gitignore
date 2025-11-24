@@ -31,7 +31,8 @@ Thumbs.db
 
 # Environment variables
 .env
-.flaskenv
+__pycache__/
+*.pyc
 
 # Logs
 *.log
