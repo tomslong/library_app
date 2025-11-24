@@ -10,7 +10,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # 复制依赖文件
-COPY library_app/requirements.txt .
+COPY requirements.txt .
 
 # 升级 pip 并安装 cryptography（确保 PyMySQL 所需的加密支持可用），然后安装其他依赖
 RUN pip install --upgrade pip setuptools wheel && \
@@ -18,10 +18,10 @@ RUN pip install --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r requirements.txt
 
 # 复制项目文件
-COPY library_app/ .
+COPY . .
 
 # 暴露端口（Flask默认5000）
 EXPOSE 5000
 
 # 启动命令（生产环境建议使用gunicorn，开发可用flask run）
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000","app:app"]

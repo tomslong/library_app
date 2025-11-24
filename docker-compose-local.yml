@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: library_app_local
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      # 这里的配置应与你的 Flask 应用读取的环境变量一致
+      # 假设你的应用使用 SQLALCHEMY_DATABASE_URI 或类似的变量
+      # 注意：host 必须填 db (即下方定义的 service name)
+      DB_HOST: db
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: library_db
+      FLASK_ENV: development
+      FLASK_DEBUG: 1
+    volumes:
+      # 将本地代码挂载到容器中，实现修改代码后无需重建镜像（热重载）
+      - .:/app
+
+  db:
+    image: mysql:8.0
+    container_name: library_db_local
+    restart: always
+    environment:
+      MYSQL_DATABASE: library_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "33060:3306" # 映射到宿主机 33060，防止与本地 MySQL 冲突
+    volumes:
+      - db_data_local:/var/lib/mysql
+
+volumes:
+  db_data_local:

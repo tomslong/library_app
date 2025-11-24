@@ -1,0 +1,31 @@
+# 忽略 Git 版本控制文件
+.git
+.gitignore
+
+# 忽略 Python 编译文件和缓存
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# 忽略本地虚拟环境 (非常重要！容器会自己安装依赖)
+venv
+.venv
+env
+.env
+
+# 忽略本地 IDE 配置
+.vscode
+.idea
+
+# 忽略本地生成的数据库文件 (防止覆盖容器内的数据)
+*.db
+*.sqlite3
+instance/
+
+# 忽略 Docker 相关配置 (不需要打包进镜像)
+docker-compose.yml
+docker-compose-local.yml
+Dockerfile
+.dockerignore
+README.md
